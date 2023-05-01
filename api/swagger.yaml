@@ -1,0 +1,402 @@
+openapi: 3.0.0
+info:
+  title: Keep Charged
+  description: API documentation
+  contact: {}
+  version: 0.0.1 beta
+servers:
+- url: /
+tags:
+- name: No login required
+  description: Endpoints that do not require authorization.
+- name: Login required
+  description: Describes all services that can be installed via Package manager
+- name: Administration endpoints
+paths:
+  /api/login:
+    put:
+      tags:
+      - No login required
+      summary: Login to system
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "404":
+          description: Bad login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+  /api/register:
+    put:
+      tags:
+      - No login required
+      summary: Register to system
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        "404":
+          description: Specified action/object is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+  /api/logout:
+    put:
+      tags:
+      - Login required
+      summary: Ends users session
+      requestBody:
+        description: ""
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_logout_body'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+  /api/station/{id}:
+    get:
+      tags:
+      - Login required
+      summary: Returns the specified users charging station
+      parameters:
+      - name: id
+        in: path
+        description: Station id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+        "404":
+          description: Specified action/object is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+    put:
+      tags:
+      - Login required
+      summary: Creates new charging station instance
+      operationId: mobile8
+      parameters:
+      - name: id
+        in: path
+        description: Configuration section name
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: section for updating
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/station_id_body'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+        "404":
+          description: Specified action/object is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+        "422":
+          description: Error appeared while parsing request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+    delete:
+      tags:
+      - Login required
+      summary: Deletes the specified chargingstation
+      operationId: mobile9
+      parameters:
+      - name: id
+        in: path
+        description: Operator lists section name
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+        "404":
+          description: Specified action/object is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+  /api/post_example:
+    post:
+      tags:
+      - Login required
+      summary: update configuration example
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+        "404":
+          description: Specified action/object is not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+  /api/stations:
+    get:
+      tags:
+      - Login required
+      summary: Returns all stations
+      description: Returns all stations with their parameters from database
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+  /api/nearest:
+    get:
+      tags:
+      - Login required
+      summary: Returns nearest charging stations
+      description: Returns nearest charging stations with their parameters from database
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+components:
+  schemas:
+    default_error:
+      title: default_error
+      type: object
+      properties:
+        code:
+          type: number
+          description: Error code
+        error:
+          type: string
+          description: Error message
+        source:
+          type: string
+          description: Error source
+      description: Default error object
+    login:
+      title: login
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      example:
+        password: password
+        username: username
+    register:
+      title: register
+      required:
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+      example:
+        password: password
+        email: email
+        username: username
+    inline_response_200:
+      required:
+      - data
+      - success
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/login'
+      description: ""
+      example:
+        data:
+          password: password
+          username: username
+        success: true
+      x-examples:
+        example-1:
+          success: true
+          data: {}
+    inline_response_404:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Operation status
+          default: false
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/default_error'
+    inline_response_200_1:
+      required:
+      - data
+      - success
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/register'
+      description: ""
+      example:
+        data:
+          password: password
+          email: email
+          username: username
+        success: true
+      x-examples:
+        example-1:
+          success: true
+          data: {}
+    api_logout_body:
+      type: object
+      properties:
+        data:
+          type: array
+          description: array of of section objects
+          items: {}
+    inline_response_200_2:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Operation status.
+        data: {}
+      example:
+        data: ""
+        success: true
+    station_id_body:
+      type: object
+      properties:
+        data: {}
+    inline_response_200_3:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Operation status
+      example:
+        success: true
+  responses:
+    "201response":
+      description: Section successfully created
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: Operation status
+              data:
+                type: object
+                description: Created section
+    "200response":
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_200_3'
+    "404response":
+      description: Specified action/object is not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_404'
+    "404responselog":
+      description: Bad login
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_404'
+    "405response":
+      description: Request method is not allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                description: Operation status
+                default: false
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/default_error'
+    "422response":
+      description: Error appeared while parsing request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_response_404'
+    custom_rules:
+      description: Example response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+              data:
+                type: object
+                properties:
+                  custom_rules:
+                    type: string
